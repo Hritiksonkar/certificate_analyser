@@ -123,22 +123,25 @@ function clearParamFromHash(paramName: string): void {
     // Remove the leading #
     const hashContent = hash.substring(1);
 
-    // Split route path from query string
     const queryStartIndex = hashContent.indexOf('?');
 
+    // Support plain hash params: #param=value
     if (queryStartIndex === -1) {
-        // No query string in hash, nothing to remove
+        const params = new URLSearchParams(hashContent);
+        params.delete(paramName);
+
+        const newHash = params.toString();
+        const newUrl = window.location.pathname + window.location.search + (newHash ? '#' + newHash : '');
+        window.history.replaceState(null, '', newUrl);
         return;
     }
 
     const routePath = hashContent.substring(0, queryStartIndex);
     const queryString = hashContent.substring(queryStartIndex + 1);
 
-    // Parse and remove the specific parameter
     const params = new URLSearchParams(queryString);
     params.delete(paramName);
 
-    // Reconstruct the URL
     const newQueryString = params.toString();
     let newHash = routePath;
 
@@ -176,7 +179,14 @@ export function getSecretFromHash(paramName: string): string | null {
 
     // Remove the leading #
     const hashContent = hash.substring(1);
-    const params = new URLSearchParams(hashContent);
+
+    // Support both:
+    // - #secret=xxx
+    // - #/route?secret=xxx
+    const queryStartIndex = hashContent.indexOf('?');
+    const paramString = queryStartIndex === -1 ? hashContent : hashContent.substring(queryStartIndex + 1);
+
+    const params = new URLSearchParams(paramString);
     const secret = params.get(paramName);
 
     if (secret) {

@@ -47,6 +47,7 @@ export function useGetCallerUserRole() {
       return actor.getCallerUserRole();
     },
     enabled: !!actor && !actorFetching,
+    retry: false,
   });
 }
 
@@ -60,6 +61,24 @@ export function useIsCallerAdmin() {
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+}
+
+export function useInitializeAccessControl() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userSecret: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor._initializeAccessControlWithSecret(userSecret);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserRole'] });
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
   });
 }
 

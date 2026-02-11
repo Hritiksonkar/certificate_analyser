@@ -31,7 +31,7 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://127.0.0.1:4943',
+                target: 'http://127.0.0.1:5000',
                 changeOrigin: true
             }
         }
@@ -47,7 +47,7 @@ export default defineConfig({
         alias: [
             {
                 find: 'declarations',
-                replacement: fileURLToPath(new URL('../declarations', import.meta.url))
+                replacement: fileURLToPath(new URL('./src/declarations', import.meta.url))
             },
             {
                 find: '@',

@@ -25,9 +25,6 @@
       "node"
     ],
     "paths": {
-      "declarations/*": [
-        "../declarations/*"
-      ],
       "@/*": [
         "./src/*"
       ],
@@ -37,8 +34,7 @@
     }
   },
   "include": [
-    "src",
-    "../declarations"
+    "src"
   ],
   "exclude": [
     "node_modules",

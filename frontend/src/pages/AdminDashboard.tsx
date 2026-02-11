@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useIssueCertificate } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,6 +120,12 @@ export default function AdminDashboard() {
         <p className="text-muted-foreground">
           Issue and manage academic certificates
         </p>
+      </div>
+
+      <div>
+        <Button asChild variant="outline">
+          <Link to="/admin/approve">Approve Uploaded Certificates</Link>
+        </Button>
       </div>
 
       <Tabs defaultValue="issue" className="space-y-6">

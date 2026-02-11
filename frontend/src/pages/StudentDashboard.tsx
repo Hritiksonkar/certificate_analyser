@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useGetCertificatesByStudentId } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,6 +58,12 @@ export default function StudentDashboard() {
         <p className="text-muted-foreground">
           View and manage your academic certificates
         </p>
+      </div>
+
+      <div>
+        <Button asChild>
+          <Link to="/student/upload">Upload Certificate</Link>
+        </Button>
       </div>
 
       <Card>

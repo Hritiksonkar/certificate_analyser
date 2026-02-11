@@ -1,0 +1,41 @@
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const Certificate = require('../models/Certificate');
+
+const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '..', 'uploads'));
+    },
+    filename: (req, file, cb) => {
+        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, unique + ext);
+    },
+});
+
+const upload = multer({ storage });
+
+router.post('/upload', upload.single('certificate'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file provided' });
+        }
+
+        const certificate = new Certificate({
+            studentId: req.body.studentId || undefined,
+            fileUrl: `/uploads/${req.file.filename}`,
+            status: 'pending',
+        });
+
+        await certificate.save();
+        res.json({ message: 'Certificate uploaded', certificate });
+    } catch (err) {
+        console.error('Upload error:', err);
+        res.status(500).json({ message: 'Upload failed' });
+    }
+});
+
+module.exports = router;

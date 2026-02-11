@@ -45,6 +45,7 @@ export interface CertificateVerificationResult {
 export type UserRole = 'admin' | 'user' | 'guest';
 
 export interface BackendActor {
+    _initializeAccessControlWithSecret: (userSecret: string) => Promise<void>;
     getCallerUserProfile: () => Promise<UserProfile | null>;
     saveCallerUserProfile: (profile: UserProfile) => Promise<void>;
     getUserProfile: (user: Principal) => Promise<UserProfile | null>;

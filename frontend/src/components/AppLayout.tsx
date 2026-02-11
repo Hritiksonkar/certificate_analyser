@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Shield, Menu } from 'lucide-react';
 import AuthControls from './AuthControls';
 import ProfileSetupDialog from './ProfileSetupDialog';
+import AccessControlSetupDialog from './AccessControlSetupDialog';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -42,8 +43,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <AccessControlSetupDialog />
       <ProfileSetupDialog />
-      
+
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
@@ -56,7 +58,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span className="text-xs text-muted-foreground">Academic Verification</span>
               </div>
             </Link>
-            
+
             <nav className="hidden md:flex items-center gap-6">
               <NavLinks />
             </nav>
@@ -64,7 +66,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="flex items-center gap-4">
             <AuthControls />
-            
+
             <Sheet>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
@@ -92,7 +94,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <Shield className="w-4 h-4 text-emerald-600" />
               <span>© {currentYear} CertifyChain. Secure. Immutable. Verified.</span>
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <a
                 href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}

@@ -3,6 +3,8 @@ import { ThemeProvider } from 'next-themes';
 import AppLayout from './components/AppLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import UploadCertificate from './pages/UploadCertificate';
+import ApproveCertificates from './pages/ApproveCertificates';
 import CertificateDetail from './pages/CertificateDetail';
 import VerifyCertificate from './pages/VerifyCertificate';
 import LandingPage from './pages/LandingPage';
@@ -34,6 +36,18 @@ const studentRoute = createRoute({
   component: StudentDashboard,
 });
 
+const studentUploadRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/student/upload',
+  component: UploadCertificate,
+});
+
+const adminApproveRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/approve',
+  component: ApproveCertificates,
+});
+
 const certificateDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/certificate/$certificateId',
@@ -49,7 +63,9 @@ const verifyRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute,
+  adminApproveRoute,
   studentRoute,
+  studentUploadRoute,
   certificateDetailRoute,
   verifyRoute,
 ]);
