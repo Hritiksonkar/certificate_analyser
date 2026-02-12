@@ -8,6 +8,7 @@ import ApproveCertificates from './pages/ApproveCertificates';
 import CertificateDetail from './pages/CertificateDetail';
 import VerifyCertificate from './pages/VerifyCertificate';
 import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
 import { Toaster } from '@/components/ui/sonner';
 
 const rootRoute = createRootRoute({
@@ -60,6 +61,12 @@ const verifyRoute = createRoute({
   component: VerifyCertificate,
 });
 
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute,
@@ -68,6 +75,7 @@ const routeTree = rootRoute.addChildren([
   studentUploadRoute,
   certificateDetailRoute,
   verifyRoute,
+  loginRoute,
 ]);
 
 const router = createRouter({ routeTree });

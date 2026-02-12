@@ -13,6 +13,22 @@ router.get('/pending', async (req, res) => {
     }
 });
 
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Simple hardcoded admin check for demonstration
+    // In production, use hashed passwords and a database
+    if (email === 'admin@certify.com' && password === 'admin123') {
+        res.json({
+            success: true,
+            token: 'mock_admin_token',
+            user: { name: 'System Admin', role: 'admin' }
+        });
+    } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
 router.put('/approve/:id', async (req, res) => {
     try {
         await Certificate.findByIdAndUpdate(req.params.id, { status: 'approved' });

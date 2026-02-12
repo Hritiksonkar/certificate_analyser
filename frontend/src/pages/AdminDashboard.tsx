@@ -86,13 +86,16 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container py-12">
-        <Alert>
+      <div className="container py-12 flex flex-col items-center justify-center space-y-4">
+        <Alert className="max-w-md">
           <Shield className="h-4 w-4" />
           <AlertDescription>
             Please log in to access the admin dashboard.
           </AlertDescription>
         </Alert>
+        <Button asChild>
+          <Link to="/login">Go to Login</Link>
+        </Button>
       </div>
     );
   }

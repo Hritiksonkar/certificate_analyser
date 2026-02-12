@@ -37,13 +37,16 @@ export default function StudentDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container py-12">
-        <Alert>
+      <div className="container py-12 flex flex-col items-center justify-center space-y-4">
+        <Alert className="max-w-md">
           <GraduationCap className="h-4 w-4" />
           <AlertDescription>
             Please log in to view your certificates.
           </AlertDescription>
         </Alert>
+        <Button asChild>
+          <Link to="/login">Go to Login</Link>
+        </Button>
       </div>
     );
   }

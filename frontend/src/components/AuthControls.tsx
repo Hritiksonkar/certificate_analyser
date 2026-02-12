@@ -4,31 +4,26 @@ import { Button } from '@/components/ui/button';
 import { LogIn, LogOut, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function AuthControls() {
-  const { login, clear, loginStatus, identity } = useInternetIdentity();
-  const queryClient = useQueryClient();
+import { useNavigate } from '@tanstack/react-router';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
-  const isAuthenticated = !!identity;
+export default function AuthControls() {
+  const { clear, loginStatus } = useInternetIdentity();
+  const { isAuthenticated, logout: adminLogout } = useCurrentUser();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const isLoggingIn = loginStatus === 'logging-in';
 
   const handleAuth = async () => {
     if (isAuthenticated) {
       await clear();
+      adminLogout();
       queryClient.clear();
       toast.success('Logged out successfully');
+      navigate({ to: '/' });
     } else {
-      try {
-        await login();
-        toast.success('Logged in successfully');
-      } catch (error: any) {
-        console.error('Login error:', error);
-        if (error.message === 'User is already authenticated') {
-          await clear();
-          setTimeout(() => login(), 300);
-        } else {
-          toast.error('Login failed. Please try again.');
-        }
-      }
+      navigate({ to: '/login' });
     }
   };
 
