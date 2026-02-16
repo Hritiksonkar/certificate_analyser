@@ -12,6 +12,11 @@ CertifyChain is a certificate issuance + verification app with a React/Tailwind 
 
 This repository is a **pnpm workspace** with two packages: `frontend/` and `server/`.
 
+## Package READMEs
+
+- Frontend docs: [frontend/README.md](frontend/README.md)
+- Backend/API docs: [server/README.md](server/README.md)
+
 ## Repository layout
 
 - `frontend/` — Vite + React + TypeScript UI (shadcn/ui components, TanStack Router, TanStack Query)
@@ -84,6 +89,8 @@ Notes:
 
 - In dev, the frontend proxies `/api/*` to `http://127.0.0.1:5000`.
 - The **admin email/password login is demo-only** (see “Security notes” below).
+
+For more detail (env vars, commands, IC notes), see the package READMEs linked above.
 
 ## Enabling Internet Computer (IC) certificate issuance/verification
 
