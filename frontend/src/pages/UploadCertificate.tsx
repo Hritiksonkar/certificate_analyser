@@ -21,11 +21,9 @@ export default function UploadCertificate() {
 
         try {
             setIsUploading(true);
-            await axios.post('/api/student/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            // Do not manually set Content-Type for FormData.
+            // Axios will set the correct multipart boundary; if it's missing, multer can fail.
+            await axios.post('/api/student/upload', formData);
             toast.success('Certificate Uploaded Successfully');
             setFile(null);
         } catch (err: any) {

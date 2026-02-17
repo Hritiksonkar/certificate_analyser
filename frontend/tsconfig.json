@@ -28,6 +28,9 @@
       "@/*": [
         "./src/*"
       ],
+      "declarations/*": [
+        "./src/declarations/*"
+      ],
       "@dfinity/principal": [
         "./node_modules/@dfinity/principal"
       ]

@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
@@ -9,11 +10,18 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
+const uploadsDir = path.join(__dirname, 'uploads');
+try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (err) {
+    console.error('Failed to create uploads directory:', err);
+}
+
 app.use(cors());
 app.use(express.json());
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 app.get('/api/health', (req, res) => {
     res.json({ ok: true });
