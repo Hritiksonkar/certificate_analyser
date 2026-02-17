@@ -51,18 +51,22 @@ export function InternetIdentityProvider({ children }: { children: React.ReactNo
 
     const identityProvider = import.meta.env.VITE_II_URL || process.env.II_URL || 'https://identity.ic0.app';
 
-    await authClient.login({
-      identityProvider,
-      onSuccess: () => {
-        const id = authClient.getIdentity();
-        setIdentity(id);
-        setIsAuthenticated(true);
-        setLoginStatus('authenticated');
-      },
-      onError: (error) => {
-        console.error('Login failed:', error);
-        setLoginStatus('unauthenticated');
-      },
+    await new Promise<void>((resolve, reject) => {
+      authClient.login({
+        identityProvider,
+        onSuccess: () => {
+          const id = authClient.getIdentity();
+          setIdentity(id);
+          setIsAuthenticated(true);
+          setLoginStatus('authenticated');
+          resolve();
+        },
+        onError: (error) => {
+          console.error('Login failed:', error);
+          setLoginStatus('unauthenticated');
+          reject(error);
+        },
+      });
     });
   }
 
