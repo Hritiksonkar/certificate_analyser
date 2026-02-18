@@ -9,15 +9,19 @@ export function useCurrentUser() {
   const adminRole = typeof window !== 'undefined' ? localStorage.getItem('user_role') : null;
   const isEmailAdmin = !!adminToken && adminRole === 'admin';
 
-  const isAuthenticated = !!identity || isEmailAdmin;
+  const isInternetIdentityAuthenticated = !!identity;
+  const isAuthenticated = isInternetIdentityAuthenticated || isEmailAdmin;
 
   const { data: userProfile, isLoading: profileLoading } = useGetCallerUserProfile();
-  const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
+  const { data: isCanisterAdmin, isLoading: adminLoading } = useIsCallerAdmin();
 
   return {
     isAuthenticated,
+    isInternetIdentityAuthenticated,
+    isEmailAdmin,
     userProfile: isEmailAdmin ? { name: 'System Admin' } : userProfile,
-    isAdmin: isAdmin || isEmailAdmin || false,
+    isCanisterAdmin: isCanisterAdmin || false,
+    isAdmin: isCanisterAdmin || isEmailAdmin || false,
     isLoading: profileLoading || adminLoading,
     principal: identity?.getPrincipal(),
     logout: () => {

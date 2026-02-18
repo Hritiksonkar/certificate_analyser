@@ -10,7 +10,7 @@ interface CertificateCardProps {
 }
 
 export default function CertificateCard({ certificate }: CertificateCardProps) {
-  const issuedDate = new Date(Number(certificate.issuedAt) / 1_000_000);
+  const issuedDate = new Date(Number(certificate.issuedAt / 1_000_000n));
 
   return (
     <Card className="hover:shadow-md transition-shadow">

@@ -16,9 +16,16 @@ export default function VerifyCertificate() {
   const certIdFromUrl = (search as any)?.certId || '';
 
   const [certificateId, setCertificateId] = useState(certIdFromUrl);
-  const [activeCertId, setActiveCertId] = useState<bigint | null>(
-    certIdFromUrl ? BigInt(certIdFromUrl) : null
-  );
+  const [idError, setIdError] = useState<string | null>(null);
+
+  const [activeCertId, setActiveCertId] = useState<bigint | null>(() => {
+    if (!certIdFromUrl) return null;
+    try {
+      return BigInt(String(certIdFromUrl).trim());
+    } catch {
+      return null;
+    }
+  });
 
   // Optional fields for hash verification
   const [studentName, setStudentName] = useState('');
@@ -31,7 +38,13 @@ export default function VerifyCertificate() {
 
   useEffect(() => {
     if (certIdFromUrl && !activeCertId) {
-      setActiveCertId(BigInt(certIdFromUrl));
+      try {
+        setActiveCertId(BigInt(String(certIdFromUrl).trim()));
+        setIdError(null);
+      } catch {
+        setActiveCertId(null);
+        setIdError('Invalid Certificate ID in URL');
+      }
     }
   }, [certIdFromUrl, activeCertId]);
 
@@ -41,8 +54,10 @@ export default function VerifyCertificate() {
       try {
         setActiveCertId(BigInt(certificateId.trim()));
         setComputedHash(null);
+        setIdError(null);
       } catch {
         setActiveCertId(null);
+        setIdError('Certificate ID must be a number');
       }
     }
   };
@@ -65,7 +80,7 @@ export default function VerifyCertificate() {
     return 'valid';
   };
 
-  const issuedDate = certificate ? new Date(Number(certificate.issuedAt) / 1_000_000) : null;
+  const issuedDate = certificate ? new Date(Number(certificate.issuedAt / 1_000_000n)) : null;
 
   return (
     <div className="container py-12 space-y-8">
@@ -106,6 +121,10 @@ export default function VerifyCertificate() {
                 </Button>
               </div>
             </form>
+
+            {idError && (
+              <p className="mt-3 text-sm text-destructive">{idError}</p>
+            )}
           </CardContent>
         </Card>
 

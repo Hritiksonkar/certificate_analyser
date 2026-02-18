@@ -47,7 +47,7 @@ export default function CertificateDetail() {
     );
   }
 
-  const issuedDate = new Date(Number(certificate.issuedAt) / 1_000_000);
+  const issuedDate = new Date(Number(certificate.issuedAt / 1_000_000n));
   const verificationUrl = buildVerificationUrl(certificate.id);
 
   return (

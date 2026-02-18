@@ -1,25 +1,36 @@
-import { useEffect, useState } from 'react';
-import { Actor, HttpAgent } from '@dfinity/agent';
+import { useEffect, useMemo, useState } from 'react';
+import { HttpAgent } from '@dfinity/agent';
+import { createActor as createBackendActor } from 'declarations/backend';
 import { useInternetIdentity } from './useInternetIdentity';
 
-// Placeholder type - will be replaced by actual generated types
 export type BackendActor = any;
+
+function readEnv(name: string): string | undefined {
+    const metaEnv = (import.meta as any)?.env ?? {};
+    const fromMeta = metaEnv[name] ?? metaEnv[`VITE_${name}`];
+    if (typeof fromMeta === 'string' && fromMeta.trim()) return fromMeta;
+    const procEnv = typeof process !== 'undefined' ? (process as any).env : undefined;
+    const fromProcess = procEnv?.[name] ?? procEnv?.[`VITE_${name}`];
+    if (typeof fromProcess === 'string' && fromProcess.trim()) return fromProcess;
+    return undefined;
+}
 
 export function useActor() {
     const { identity } = useInternetIdentity();
     const [actor, setActor] = useState<BackendActor | null>(null);
     const [isFetching, setIsFetching] = useState(true);
 
+    const canisterId = useMemo(() => readEnv('CANISTER_ID_BACKEND'), []);
+    const network = useMemo(() => readEnv('DFX_NETWORK') ?? 'ic', []);
+    const host = network === 'local' ? 'http://localhost:4943' : 'https://ic0.app';
+
     useEffect(() => {
-        createActor();
-    }, [identity]);
+        void createActor();
+    }, [identity, canisterId, host, network]);
 
     async function createActor() {
         try {
             setIsFetching(true);
-
-            const canisterId = import.meta.env.CANISTER_ID_BACKEND || process.env.CANISTER_ID_BACKEND;
-
             if (!canisterId) {
                 console.warn('Backend canister ID not found. Please deploy the backend canister first.');
                 setActor(null);
@@ -29,25 +40,16 @@ export function useActor() {
 
             const agent = new HttpAgent({
                 identity: identity || undefined,
-                host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app',
+                host,
             });
 
             // Fetch root key for local development
-            if (process.env.DFX_NETWORK === 'local') {
+            if (network === 'local') {
                 await agent.fetchRootKey();
             }
 
-            // Try to import the generated declarations
-            try {
-                const { createActor: createBackendActor, idlFactory } = await import('declarations/backend');
-                const backendActor = createBackendActor(canisterId, {
-                    agent,
-                });
-                setActor(backendActor);
-            } catch (error) {
-                console.warn('Backend declarations not found. Please run: dfx deploy');
-                setActor(null);
-            }
+            const backendActor = createBackendActor(canisterId, { agent });
+            setActor(backendActor);
 
             setIsFetching(false);
         } catch (error) {

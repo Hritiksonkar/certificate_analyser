@@ -27,7 +27,7 @@ export default function AdminManagement() {
             const principal = Principal.fromText(principalStr.trim());
             await assignRole.mutateAsync({
                 user: principal,
-                role: role as any,
+                role,
             });
 
             toast.success(`Role ${role} assigned to principal successfully`);

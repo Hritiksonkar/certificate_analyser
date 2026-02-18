@@ -19,7 +19,7 @@ import AdminManagement from '../components/AdminManagement';
 import { Certificate } from '../backend';
 
 export default function AdminDashboard() {
-  const { isAuthenticated, isAdmin, isLoading } = useCurrentUser();
+  const { isAuthenticated, isCanisterAdmin, isEmailAdmin, isInternetIdentityAuthenticated, isLoading } = useCurrentUser();
   const issueCertificate = useIssueCertificate();
 
   const [studentName, setStudentName] = useState('');
@@ -44,8 +44,6 @@ export default function AdminDashboard() {
 
     try {
       const hash = await computeCertificateHash(studentName, studentId, degree, yearNum);
-      const url = buildVerificationUrl('pending');
-
       const certificate = await issueCertificate.mutateAsync({
         input: {
           studentName: studentName.trim(),
@@ -54,7 +52,7 @@ export default function AdminDashboard() {
           year: BigInt(yearNum),
         },
         hash,
-        url: buildVerificationUrl('pending'),
+        url: '',
       });
 
       setIssuedCertificate(certificate);
@@ -100,7 +98,31 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!isAdmin) {
+  if (isEmailAdmin && !isInternetIdentityAuthenticated) {
+    return (
+      <div className="container py-12 space-y-6">
+        <Alert>
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            You are signed in with email admin. This mode is only for approving uploaded certificates.
+            To issue certificates on the Internet Computer and manage admins/history, sign in with Internet Identity.
+          </AlertDescription>
+        </Alert>
+
+        <div>
+          <Button asChild variant="outline">
+            <Link to="/admin/approve">Approve Uploaded Certificates</Link>
+          </Button>
+        </div>
+
+        <Button asChild>
+          <Link to="/login">Sign in with Internet Identity</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  if (!isCanisterAdmin) {
     return (
       <div className="container py-12">
         <Alert variant="destructive">

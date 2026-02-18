@@ -1,6 +1,42 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Principal } from '@dfinity/principal';
 import { useActor } from './useActor';
-import { UserProfile, CertificateInput } from '../backend';
+import { UserProfile, CertificateInput, UserRole, Certificate, CertificateHistory } from '../backend';
+
+type CandidOpt<T> = [] | [T];
+type CandidVariant<T extends string> = { [K in T]?: null };
+
+function unwrapOpt<T>(value: unknown): T | null {
+  if (value === null || value === undefined) return null;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return null;
+    if (value.length === 1) return value[0] as T;
+  }
+  return value as T;
+}
+
+function fromCandidUserRole(value: unknown): UserRole {
+  if (typeof value === 'string') return value as UserRole;
+  if (value && typeof value === 'object') {
+    const v = value as Record<string, unknown>;
+    if ('admin' in v) return 'admin';
+    if ('user' in v) return 'user';
+    if ('guest' in v) return 'guest';
+  }
+  return 'guest';
+}
+
+function toCandidUserRole(role: UserRole): CandidVariant<UserRole> {
+  switch (role) {
+    case 'admin':
+      return { admin: null };
+    case 'user':
+      return { user: null };
+    case 'guest':
+    default:
+      return { guest: null };
+  }
+}
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -9,7 +45,8 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      const raw = await actor.getCallerUserProfile();
+      return unwrapOpt<UserProfile>(raw);
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -40,11 +77,12 @@ export function useSaveCallerUserProfile() {
 export function useGetCallerUserRole() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  return useQuery<UserRole>({
     queryKey: ['currentUserRole'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserRole();
+      const raw = await actor.getCallerUserRole();
+      return fromCandidUserRole(raw);
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -100,11 +138,12 @@ export function useIssueCertificate() {
 export function useGetCertificateById(id: bigint | null) {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  return useQuery<Certificate | null>({
     queryKey: ['certificate', id?.toString()],
     queryFn: async () => {
       if (!actor || id === null) throw new Error('Actor or ID not available');
-      return actor.getCertificateById(id);
+      const raw = await actor.getCertificateById(id);
+      return unwrapOpt<Certificate>(raw);
     },
     enabled: !!actor && !actorFetching && id !== null,
   });
@@ -113,7 +152,7 @@ export function useGetCertificateById(id: bigint | null) {
 export function useGetCertificatesByStudentId(studentId: string | null) {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  return useQuery<Certificate[]>({
     queryKey: ['certificates', 'student', studentId],
     queryFn: async () => {
       if (!actor || !studentId) throw new Error('Actor or student ID not available');
@@ -126,7 +165,7 @@ export function useGetCertificatesByStudentId(studentId: string | null) {
 export function useGetCertificateHistory(pageIndex: number, pageSize: number) {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  return useQuery<CertificateHistory>({
     queryKey: ['certificateHistory', pageIndex, pageSize],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
@@ -141,9 +180,9 @@ export function useAssignUserRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ user, role }: { user: any; role: any }) => {
+    mutationFn: async ({ user, role }: { user: Principal; role: UserRole }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.assignCallerUserRole(user, role);
+      return actor.assignCallerUserRole(user, toCandidUserRole(role));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserRole'] });
